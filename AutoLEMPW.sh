@@ -274,12 +274,36 @@ success_msg "LEMP components installed successfully"
 
 # Enable and start services
 print_section "Configuring Services"
-info_msg "Enabling and starting NGINX and MariaDB..."
+info_msg "Enabling services to start on system boot..."
 {
+    # Enable services to start on boot
     sudo systemctl enable nginx
     sudo systemctl enable mariadb
+    
+    # Also enable PHP-FPM (determine installed PHP version)
+    PHP_VERSION=$(php -r 'echo PHP_MAJOR_VERSION.".".PHP_MINOR_VERSION;')
+    sudo systemctl enable php$PHP_VERSION-fpm
+    
+    # Verify services are enabled
+    NGINX_ENABLED=$(systemctl is-enabled nginx)
+    MARIADB_ENABLED=$(systemctl is-enabled mariadb)
+    PHP_ENABLED=$(systemctl is-enabled php$PHP_VERSION-fpm)
+    
+    if [[ "$NGINX_ENABLED" == "enabled" && "$MARIADB_ENABLED" == "enabled" && "$PHP_ENABLED" == "enabled" ]]; then
+        success_msg "All services configured to start automatically on system boot"
+    else
+        warning_msg "Some services may not start automatically on boot:"
+        [[ "$NGINX_ENABLED" != "enabled" ]] && warning_msg "- Nginx: $NGINX_ENABLED"
+        [[ "$MARIADB_ENABLED" != "enabled" ]] && warning_msg "- MariaDB: $MARIADB_ENABLED"
+        [[ "$PHP_ENABLED" != "enabled" ]] && warning_msg "- PHP-FPM: $PHP_ENABLED"
+    fi
+} || warning_msg "Issues encountered while enabling services. Website may not start automatically on boot."
+
+info_msg "Starting services..."
+{
     sudo systemctl start nginx || true
     sudo systemctl start mariadb || true
+    sudo systemctl start php$PHP_VERSION-fpm || true
 } || warning_msg "Issues encountered while starting services. Will try to continue."
 
 # Check if services are running
@@ -495,14 +519,18 @@ Admin URL: http://$SITE_NAME/wp-admin
 Next Steps:
 ----------
 1. Complete the WordPress installation by visiting http://$SITE_NAME
-2. Set up an SSL certificate (recommended)
+2. Set up an SSL certificate (not required for local testing)
 3. Install essential WordPress plugins for security and performance
 4. Set up regular backups
 
-Notes:
------
-- This summary contains sensitive information, keep it secure
-- For security, change all passwords regularly
+Boot Configuration:
+-----------------
+Nginx: $NGINX_ENABLED
+MariaDB: $MARIADB_ENABLED
+PHP-FPM: $PHP_ENABLED
+
+Note: If any service shows as "disabled", you can enable it with:
+sudo systemctl enable [service-name]
 EOF
 
     chmod 600 "$SUMMARY_FILE"
@@ -548,6 +576,8 @@ echo -e "${YELLOW}${BOLD}Next Steps:${NC}"
 echo -e "1. Complete the WordPress installation by visiting the website URL"
 echo -e "2. Set up an SSL certificate using Let's Encrypt for better security"
 echo -e "3. Install essential WordPress plugins (security, caching, SEO)"
+echo ""
+echo -e "${YELLOW}${BOLD}Note:${NC} Nginx and MariaDB are configured to start automatically on boot."
 echo ""
 echo -e "${BOLD}Thank you for using the WordPress + LEMP Stack Setup Script!${NC}"
 echo -e "${CYAN}Made by Aizhee${NC}"
