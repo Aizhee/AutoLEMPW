@@ -38,8 +38,6 @@ bash <(curl -s https://raw.githubusercontent.com/Aizhee/AutoLEMPW/main/AutoLEMPW
 > ⚠️ Be sure to verify the script before running if you're using it in production environments.
 
 ---
-inpired from [LEMP Bible](https://docs.google.com/document/d/1WT_3-hcNB-p6gCtCNLz69380kl9V7kNIx8tQiikDRew/edit?tab=t.0)
----
 
 ## Requirements
 
