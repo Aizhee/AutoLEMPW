@@ -2,7 +2,7 @@
 
 # WordPress + LEMP Auto-Setup Script (AutoLEMPW)
 
-This bash script automates the setup and teardown of a full **WordPress + LEMP stack** on Ubuntu. It installs Nginx, MariaDB, PHP, WordPress, and configures everything for a functional site.
+This bash script automates the setup of a full **WordPress + LEMP stack** on Ubuntu. It installs Nginx, MariaDB, PHP, WordPress, and configures everything for a functional site.
 
 ---
 
@@ -14,8 +14,9 @@ This bash script automates the setup and teardown of a full **WordPress + LEMP s
   - PHP with required extensions
   - WordPress with database and `wp-config.php`
   - Nginx virtual host config
+  - (Optional) VSCode
 
-- Uninstalls everything:
+- Uninstalls everything (add `--remove` flag):
   - WordPress files
   - Database + user
   - Nginx configuration
@@ -25,18 +26,19 @@ This bash script automates the setup and teardown of a full **WordPress + LEMP s
 ## Quick Install via curl
 
 ```bash
-bash <(curl -s https://raw.githubusercontent.com/Aizhee/wordpress-lemp-setup/main/AutoLEMPW.sh)
+bash <(curl -s https://raw.githubusercontent.com/Aizhee/AutoLEMPW/main/AutoLEMPW.sh)
 ````
 
 ## Quick Uninstall via curl
 
 ```bash
-bash <(curl -s https://raw.githubusercontent.com/Aizhee/wordpress-lemp-setup/main/setup-wordpress-lemp.sh) --remove
+bash <(curl -s https://raw.githubusercontent.com/Aizhee/AutoLEMPW/main/AutoLEMPW.sh) --remove
 ```
 
 > ⚠️ Be sure to verify the script before running if you're using it in production environments.
 
-
+---
+inpired from [LEMP Bible](https://docs.google.com/document/d/1WT_3-hcNB-p6gCtCNLz69380kl9V7kNIx8tQiikDRew/edit?tab=t.0)
 ---
 
 ## Requirements
