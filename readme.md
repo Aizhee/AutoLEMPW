@@ -24,21 +24,24 @@ This bash script automates the setup of a full **WordPress + LEMP stack** on Ubu
 ---
 
 ## Quick Install via curl
+
 ```bash
 sudo apt install curl
 ```
 
-
 ```bash
-curl -s https://raw.githubusercontent.com/Aizhee/AutoLEMPW/main/AutoLEMPW.sh | sudo bash
+curl -O https://raw.githubusercontent.com/Aizhee/AutoLEMPW/main/AutoLEMPW.sh
+chmod +x AutoLEMPW.sh
+sudo ./AutoLEMPW.sh
 
 ````
 
 ## Quick Uninstall via curl
 
 ```bash
-curl -s https://raw.githubusercontent.com/Aizhee/AutoLEMPW/main/AutoLEMPW.sh | sudo bash
- --remove
+curl -O https://raw.githubusercontent.com/Aizhee/AutoLEMPW/main/AutoLEMPW.sh
+chmod +x AutoLEMPW.sh
+sudo ./AutoLEMPW.sh --remove
 ```
 
 > ⚠️ Be sure to verify the script before running if you're using it in production environments.
