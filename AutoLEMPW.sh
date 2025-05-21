@@ -23,7 +23,7 @@ print_banner() {
     clear
     echo -e "${BLUE}╔════════════════════════════════════════════════════════╗${NC}"
     echo -e "${BLUE}║                                                        ║${NC}"
-    echo -e "${BLUE}║  ${BOLD}WordPress + LEMP Stack Setup${NC}${BLUE}                        ║${NC}"
+    echo -e "${BLUE}║  ${BOLD}WordPress + LEMP Stack Setup${NC}${BLUE}                          ║${NC}"
     echo -e "${BLUE}║  ${CYAN}Automated installation and configuration tool${NC}${BLUE}         ║${NC}"
     echo -e "${BLUE}║                                                        ║${NC}"
     echo -e "${BLUE}╚════════════════════════════════════════════════════════╝${NC}"
