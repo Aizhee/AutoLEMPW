@@ -325,10 +325,7 @@ info_msg "Securing MySQL..."
 
 {
     # Force native password authentication
-    sudo mysql -uroot <<EOF
-ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '$MYSQL_ROOT_PASS';
-FLUSH PRIVILEGES;
-EOF
+sudo mysql -u root -p"$MYSQL_ROOT_PASS" -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '$MYSQL_ROOT_PASS'; FLUSH PRIVILEGES;"
 } || exit_with_error "Failed to set MySQL root password"
 
 success_msg "MySQL secured successfully"
