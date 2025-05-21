@@ -69,39 +69,6 @@ check_command() {
     fi
 }
 
-progress_bar() {
-    local duration=$1
-    local bar_size=40
-    local elapsed=0
-    local increment=$(bc <<< "scale=2; $duration/$bar_size")
-    
-    echo -e -n "${BLUE}["
-    
-    for ((i=0; i<bar_size; i++)); do
-        echo -e -n " "
-    done
-    
-    echo -e -n "]${NC} 0%"
-    
-    echo -e -n "\r${BLUE}["
-    
-    for ((i=0; i<bar_size; i++)); do
-        sleep $increment
-        echo -e -n "█"
-        elapsed=$(bc <<< "scale=2; $elapsed+$increment")
-        local percent=$(bc <<< "scale=0; ($elapsed/$duration)*100")
-        echo -e -n "\r${BLUE}["
-        for ((j=0; j<=i; j++)); do
-            echo -e -n "█"
-        done
-        for ((j=i+1; j<bar_size; j++)); do
-            echo -e -n " "
-        done
-        echo -e -n "]${NC} $percent%"
-    done
-    echo ""
-}
-
 # Check for required dependencies
 check_dependencies() {
     print_section "Checking Dependencies"
@@ -572,6 +539,19 @@ EOF
     sudo chmod 644 "$WEB_ROOT/health.php"
 } || warning_msg "Failed to create health check file"
 
+# Hosts file update
+read -p "$(echo -e ${BOLD}"Would you like to add an entry to your /etc/hosts file for local testing? [Y/n]: "${NC})" UPDATE_HOSTS
+
+if [[ "$UPDATE_HOSTS" =~ ^[Yy]$ ]]; then
+    info_msg "Adding $SITE_NAME to /etc/hosts..."
+    if ! grep -q "$SITE_NAME" /etc/hosts; then
+        echo "127.0.0.1 $SITE_NAME www.$SITE_NAME" | sudo tee -a /etc/hosts > /dev/null
+        success_msg "Added $SITE_NAME to /etc/hosts"
+    else
+        success_msg "$SITE_NAME already exists in /etc/hosts"
+    fi
+fi
+
 # Create installation summary
 print_section "Installation Summary"
 info_msg "Creating installation summary..."
@@ -622,7 +602,7 @@ success_msg "Installation summary created at $SUMMARY_FILE"
 
 # VS Code installation
 print_section "Additional Tools"
-read -p "$(echo -e ${BOLD}"Do you want to install VS Code and open the WordPress folder? [Y/n]: "${NC})" INSTALL_VSCODE
+read -p "$(echo -e ${BOLD}"Do you want to install VS Code and open the WordPress folder? (optional)[Y/n]: "${NC})" INSTALL_VSCODE
 
 if [[ -z "$INSTALL_VSCODE" || "$INSTALL_VSCODE" =~ ^[Yy]$ ]]; then
     # Install VS Code if not installed
@@ -665,18 +645,5 @@ echo ""
 echo -e "${BOLD}Thank you for using the WordPress + LEMP Stack Setup Script!${NC}"
 echo -e "${CYAN}Made by Aizhee${NC}"
 echo ""
-
-# Hosts file update
-read -p "$(echo -e ${BOLD}"Would you like to add an entry to your /etc/hosts file for local testing? [y/N]: "${NC})" UPDATE_HOSTS
-
-if [[ "$UPDATE_HOSTS" =~ ^[Yy]$ ]]; then
-    info_msg "Adding $SITE_NAME to /etc/hosts..."
-    if ! grep -q "$SITE_NAME" /etc/hosts; then
-        echo "127.0.0.1 $SITE_NAME www.$SITE_NAME" | sudo tee -a /etc/hosts > /dev/null
-        success_msg "Added $SITE_NAME to /etc/hosts"
-    else
-        success_msg "$SITE_NAME already exists in /etc/hosts"
-    fi
-fi
 
 exit 0

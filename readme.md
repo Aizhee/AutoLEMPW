@@ -32,14 +32,14 @@ sudo apt install curl
 ```bash
 curl -O https://raw.githubusercontent.com/Aizhee/AutoLEMPW/main/AutoLEMPW.sh
 chmod +x AutoLEMPW.sh
-sudo ./AutoLEMPW.sh
+./AutoLEMPW.sh
 
 ````
 
 ## Quick Uninstall via curl
 
 ```bash
-sudo ./AutoLEMPW.sh --remove
+./AutoLEMPW.sh --remove
 ```
 
 > ⚠️ Be sure to verify the script before running if you're using it in production environments.
