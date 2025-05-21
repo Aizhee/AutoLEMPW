@@ -39,8 +39,6 @@ sudo ./AutoLEMPW.sh
 ## Quick Uninstall via curl
 
 ```bash
-curl -O https://raw.githubusercontent.com/Aizhee/AutoLEMPW/main/AutoLEMPW.sh
-chmod +x AutoLEMPW.sh
 sudo ./AutoLEMPW.sh --remove
 ```
 
