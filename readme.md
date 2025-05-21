@@ -4,10 +4,10 @@
 
 This bash script automates the setup of a full **WordPress + LEMP stack** on Ubuntu. It installs Nginx, MariaDB, PHP, WordPress, and configures everything for a functional site.
 
-
+## Demo 
 [![AutoLEMPW Demo](https://img.youtube.com/vi/yqSKAMqw918/0.jpg)](https://youtu.be/yqSKAMqw918)
 
-
+- https://youtu.be/yqSKAMqw918
 ---
 
 ## Features
