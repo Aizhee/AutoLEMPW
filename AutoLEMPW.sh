@@ -128,6 +128,81 @@ check_dependencies() {
 #######################################
 # MAIN SCRIPT
 #######################################
+# --remove option: Undo everything
+if [[ "${1:-}" == "--remove" ]]; then
+    print_banner
+    print_section "Removal Mode: Undoing WordPress + LEMP Stack Setup"
+
+    # Confirm removal
+    read -p "$(echo -e ${BOLD}"Are you sure you want to remove WordPress, its database, and NGINX config for this site? [y/N]: "${NC})" CONFIRM_REMOVE
+    if [[ ! "$CONFIRM_REMOVE" =~ ^[Yy]$ ]]; then
+        info_msg "Removal canceled by user."
+        exit 0
+    fi
+
+    # Prompt for site name
+    read -p "$(echo -e ${BOLD}"Enter the domain or folder name of the site to remove (e.g., example.com): "${NC})" REMOVE_SITE
+    if [[ -z "$REMOVE_SITE" ]]; then
+        error_msg "Site name cannot be empty."
+        exit 1
+    fi
+
+    REMOVE_WEB_ROOT="/var/www/$REMOVE_SITE"
+    REMOVE_NGINX_CONF="/etc/nginx/sites-available/$REMOVE_SITE"
+    REMOVE_NGINX_LINK="/etc/nginx/sites-enabled/$REMOVE_SITE"
+
+    # Remove NGINX config
+    if [[ -f "$REMOVE_NGINX_CONF" ]]; then
+        sudo rm -f "$REMOVE_NGINX_CONF"
+        success_msg "Removed NGINX config: $REMOVE_NGINX_CONF"
+    fi
+    if [[ -L "$REMOVE_NGINX_LINK" ]]; then
+        sudo rm -f "$REMOVE_NGINX_LINK"
+        success_msg "Removed NGINX enabled link: $REMOVE_NGINX_LINK"
+    fi
+
+    # Reload NGINX
+    sudo nginx -t && sudo systemctl reload nginx
+
+    # Remove web root
+    if [[ -d "$REMOVE_WEB_ROOT" ]]; then
+        sudo rm -rf "$REMOVE_WEB_ROOT"
+        success_msg "Removed web root: $REMOVE_WEB_ROOT"
+    fi
+
+    # Remove database and user
+    read -p "$(echo -e ${BOLD}"Enter MySQL root password to remove database and user: "${NC})" -s REMOVE_MYSQL_ROOT_PASS
+    echo ""
+    read -p "$(echo -e ${BOLD}"Enter database name to drop (leave blank to skip): "${NC})" REMOVE_DB_NAME
+    read -p "$(echo -e ${BOLD}"Enter database user to drop (leave blank to skip): "${NC})" REMOVE_DB_USER
+
+    if [[ -n "$REMOVE_DB_NAME" ]]; then
+        sudo mysql -uroot -p"$REMOVE_MYSQL_ROOT_PASS" -e "DROP DATABASE IF EXISTS \`$REMOVE_DB_NAME\`;" && \
+        success_msg "Dropped database: $REMOVE_DB_NAME"
+    fi
+    if [[ -n "$REMOVE_DB_USER" ]]; then
+        sudo mysql -uroot -p"$REMOVE_MYSQL_ROOT_PASS" -e "DROP USER IF EXISTS '$REMOVE_DB_USER'@'localhost';" && \
+        success_msg "Dropped user: $REMOVE_DB_USER"
+    fi
+
+    # Remove from /etc/hosts
+    if grep -q "$REMOVE_SITE" /etc/hosts; then
+        sudo sed -i "/$REMOVE_SITE/d" /etc/hosts
+        success_msg "Removed $REMOVE_SITE from /etc/hosts"
+    fi
+
+    # Remove installation summary
+    SUMMARY_FILE="$HOME/wordpress_installation_summary.txt"
+    if [[ -f "$SUMMARY_FILE" ]]; then
+        rm -f "$SUMMARY_FILE"
+        success_msg "Removed installation summary: $SUMMARY_FILE"
+    fi
+
+    print_section "Removal Complete"
+    echo -e "${GREEN}${BOLD}All components for $REMOVE_SITE have been removed.${NC}"
+    exit 0
+fi
+
 set -o errexit  # Exit on error
 set -o pipefail # Exit on pipe error
 set -o nounset  # Exit on undefined variable
