@@ -322,12 +322,17 @@ success_msg "Services started successfully"
 # Secure MySQL
 print_section "Configuring Database"
 info_msg "Securing MySQL..."
+
 {
-    # Try setting the root password without authentication first (for fresh installs)
-    sudo mysql -uroot -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '$MYSQL_ROOT_PASS'; FLUSH PRIVILEGES;" 2>/dev/null \
-    || sudo mysql -uroot -p"$MYSQL_ROOT_PASS" -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '$MYSQL_ROOT_PASS'; FLUSH PRIVILEGES;"
+    # Force native password authentication
+    sudo mysql -uroot <<EOF
+ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '$MYSQL_ROOT_PASS';
+FLUSH PRIVILEGES;
+EOF
 } || exit_with_error "Failed to set MySQL root password"
+
 success_msg "MySQL secured successfully"
+
 
 # Create MySQL DB and user
 info_msg "Creating database and user..."
