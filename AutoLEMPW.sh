@@ -392,7 +392,11 @@ info_msg "Adding security keys and salts..."
 {
     SALT=$(curl -s https://api.wordpress.org/secret-key/1.1/salt/)
     sudo sed -i "/AUTH_KEY/d;/SECURE_AUTH_KEY/d;/LOGGED_IN_KEY/d;/NONCE_KEY/d;/AUTH_SALT/d;/SECURE_AUTH_SALT/d;/LOGGED_IN_SALT/d;/NONCE_SALT/d" "$WEB_ROOT/wp-config.php"
-    sudo sed -i "/@since 2.6.0/a $SALT" "$WEB_ROOT/wp-config.php"
+    sudo awk -v salt="$SALT" '
+        /@since 2.6.0/ { print; print salt; next }
+        { print }
+    ' "$WEB_ROOT/wp-config.php" | sudo tee "$WEB_ROOT/wp-config.php.tmp" > /dev/null
+    sudo mv "$WEB_ROOT/wp-config.php.tmp" "$WEB_ROOT/wp-config.php"
 } || exit_with_error "Failed to add security keys and salts"
 success_msg "Security keys and salts added successfully"
 
