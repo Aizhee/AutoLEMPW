@@ -23,7 +23,7 @@ print_banner() {
     clear
     echo -e "${BLUE}╔════════════════════════════════════════════════════════╗${NC}"
     echo -e "${BLUE}║                                                        ║${NC}"
-    echo -e "${BLUE}║  ${BOLD}WordPress + LEMP Stack Setup${NC}${BLUE}                          ║${NC}"
+    echo -e "${BLUE}║  ${BOLD}WordPress + LEMP Stack Setup${NC}${BLUE}                            ║${NC}"
     echo -e "${BLUE}║  ${CYAN}Automated installation and configuration tool${NC}${BLUE}         ║${NC}"
     echo -e "${BLUE}║                                                        ║${NC}"
     echo -e "${BLUE}╚════════════════════════════════════════════════════════╝${NC}"
@@ -323,7 +323,7 @@ success_msg "Services started successfully"
 print_section "Configuring Database"
 info_msg "Securing MySQL..."
 {
-    sudo mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '$MYSQL_ROOT_PASS'; FLUSH PRIVILEGES;"
+    sudo mysql -uroot -p"$MYSQL_ROOT_PASS" -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '$MYSQL_ROOT_PASS'; FLUSH PRIVILEGES;"
 } || exit_with_error "Failed to set MySQL root password"
 success_msg "MySQL secured successfully"
 
