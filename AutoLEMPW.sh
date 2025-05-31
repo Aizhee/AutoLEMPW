@@ -95,6 +95,7 @@ check_dependencies() {
 #######################################
 # MAIN SCRIPT
 #######################################
+
 # --rename option: Rename exisiting site
 if [[ "${1:-}" == "--rename" ]]; then
     print_banner
@@ -155,7 +156,7 @@ if [[ "${1:-}" == "--rename" ]]; then
     # Update NGINX config with new site name
     sudo sed -i "s/server_name $CURRENT_SITE/server_name $NEW_SITE www.$NEW_SITE;/" "$NEW_NGINX_CONF"
     success_msg "Updated NGINX config with new site name: $NEW_SITE"
-    
+
     # Reload NGINX
     if sudo nginx -t; then
         sudo systemctl reload nginx
@@ -194,6 +195,7 @@ if [[ "${1:-}" == "--rename" ]]; then
     else
         warning_msg "Installation summary file not found. No changes made."
     fi
+
     print_section "Renaming Complete"
     echo -e "${GREEN}${BOLD}The WordPress site has been successfully renamed from $CURRENT_SITE to $NEW_SITE.${NC}"
     echo -e "${YELLOW}${BOLD}Please ensure to update any links or references to the old site name.${NC}"
@@ -204,6 +206,9 @@ if [[ "${1:-}" == "--rename" ]]; then
     echo -e "${BOLD}Thank you for using the WordPress + LEMP Stack Setup Script!${NC}"
     echo -e "${CYAN}Made by Aizhee${NC}"
     echo ""
+
+    exit 0
+fi
 
 # --remove option: Undo everything
 if [[ "${1:-}" == "--remove" ]]; then
