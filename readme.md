@@ -48,6 +48,11 @@ chmod +x AutoLEMPW.sh
 
 > ⚠️ Be sure to verify the script before running if you're using it in production environments.
 
+## Rename existing site
+
+```bash
+./AutoLEMPW.sh --rename
+```
 
 ## View Summary
 ```bash

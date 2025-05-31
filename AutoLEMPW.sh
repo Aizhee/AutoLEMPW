@@ -95,6 +95,116 @@ check_dependencies() {
 #######################################
 # MAIN SCRIPT
 #######################################
+# --rename option: Rename exisiting site
+if [[ "${1:-}" == "--rename" ]]; then
+    print_banner
+    print_section "Rename Mode: Change WordPress Site Name"
+
+    # Confirm renaming
+    read -p "$(echo -e ${BOLD}"Are you sure you want to rename the WordPress site? [y/N]: "${NC})" CONFIRM_RENAME
+    if [[ ! "$CONFIRM_RENAME" =~ ^[Yy]$ ]]; then
+        info_msg "Renaming canceled by user."
+        exit 0
+    fi
+
+    # Prompt for current and new site names
+    read -p "$(echo -e ${BOLD}"Enter the current domain or folder name of the site (e.g., example.com): "${NC})" CURRENT_SITE
+    if [[ -z "$CURRENT_SITE" ]]; then
+        error_msg "Current site name cannot be empty."
+        exit 1
+    fi
+
+    read -p "$(echo -e ${BOLD}"Enter the new domain or folder name for the site (e.g., newexample.com): "${NC})" NEW_SITE
+    if [[ -z "$NEW_SITE" ]]; then
+        error_msg "New site name cannot be empty."
+        exit 1
+    fi
+
+    WEB_ROOT="/var/www/$CURRENT_SITE"
+    NEW_WEB_ROOT="/var/www/$NEW_SITE"
+    NGINX_CONF="/etc/nginx/sites-available/$CURRENT_SITE"
+    NEW_NGINX_CONF="/etc/nginx/sites-available/$NEW_SITE"
+    NGINX_LINK="/etc/nginx/sites-enabled/$CURRENT_SITE"
+    NEW_NGINX_LINK="/etc/nginx/sites-enabled/$NEW_SITE"
+
+    # Rename web root directory
+    if [[ -d "$WEB_ROOT" ]]; then
+        sudo mv "$WEB_ROOT" "$NEW_WEB_ROOT"
+        success_msg "Renamed web root from $WEB_ROOT to $NEW_WEB_ROOT"
+    else
+        error_msg "Web root directory $WEB_ROOT does not exist."
+        exit 1
+    fi
+
+    # Rename NGINX config file and link
+    if [[ -f "$NGINX_CONF" ]]; then
+        sudo mv "$NGINX_CONF" "$NEW_NGINX_CONF"
+        success_msg "Renamed NGINX config from $NGINX_CONF to $NEW_NGINX_CONF"
+        
+        if [[ -L "$NGINX_LINK" ]]; then
+            sudo rm "$NGINX_LINK"
+            success_msg "Removed old NGINX link: $NGINX_LINK"
+        fi
+        sudo ln -s "$NEW_NGINX_CONF" "$NEW_NGINX_LINK"
+        success_msg "Created new NGINX link: $NEW_NGINX_LINK"
+    else
+        error_msg "NGINX config file $NGINX_CONF does not exist."
+        exit 1
+    fi
+
+    # Update NGINX config with new site name
+    sudo sed -i "s/server_name $CURRENT_SITE/server_name $NEW_SITE www.$NEW_SITE;/" "$NEW_NGINX_CONF"
+    success_msg "Updated NGINX config with new site name: $NEW_SITE"
+    
+    # Reload NGINX
+    if sudo nginx -t; then
+        sudo systemctl reload nginx
+        success_msg "NGINX reloaded successfully"
+    else
+        error_msg "NGINX configuration test failed. Please check the config file."
+        exit 1
+    fi
+
+    # Update /etc/hosts file
+    if grep -q "$CURRENT_SITE" /etc/hosts; then
+        sudo sed -i "s/$CURRENT_SITE/$NEW_SITE/" /etc/hosts
+        success_msg "Updated /etc/hosts entry from $CURRENT_SITE to $NEW_SITE"
+    else
+        warning_msg "$CURRENT_SITE not found in /etc/hosts. No changes made."
+    fi
+
+    # Update wp-config.php
+    WP_CONFIG="$NEW_WEB_ROOT/wp-config.php"
+    if [[ -f "$WP_CONFIG" ]]; then
+        sudo sed -i "s/database_name_here/${NEW_SITE//./_}_db/" "$WP_CONFIG"
+        sudo sed -i "s/username_here/${NEW_SITE//./_}_user/" "$WP_CONFIG"
+        success_msg "Updated wp-config.php with new database and user names"
+    else
+        warning_msg "wp-config.php not found at $WP_CONFIG. No changes made."
+    fi
+
+    # Create installation summary
+    SUMMARY_FILE="$HOME/wordpress_installation_summary.txt"
+    if [[ -f "$SUMMARY_FILE" ]]; then
+        echo "WordPress site renamed from $CURRENT_SITE to $NEW_SITE on $(date)" >> "$SUMMARY_FILE"
+        echo "New web root: $NEW_WEB_ROOT" >> "$SUMMARY_FILE"
+        echo "New NGINX config: $NEW_NGINX_CONF" >> "$SUMMARY_FILE"
+        echo "Updated /etc/hosts entry: $NEW_SITE" >> "$SUMMARY_FILE"
+        success_msg "Updated installation summary at $SUMMARY_FILE"
+    else
+        warning_msg "Installation summary file not found. No changes made."
+    fi
+    print_section "Renaming Complete"
+    echo -e "${GREEN}${BOLD}The WordPress site has been successfully renamed from $CURRENT_SITE to $NEW_SITE.${NC}"
+    echo -e "${YELLOW}${BOLD}Please ensure to update any links or references to the old site name.${NC}"
+    echo -e "${YELLOW}${BOLD}Next Steps:${NC}"
+    echo -e "1. Visit http://$NEW_SITE to complete the WordPress setup."
+    echo -e "2. Update any hardcoded links in your WordPress content or settings."
+    echo ""
+    echo -e "${BOLD}Thank you for using the WordPress + LEMP Stack Setup Script!${NC}"
+    echo -e "${CYAN}Made by Aizhee${NC}"
+    echo ""
+
 # --remove option: Undo everything
 if [[ "${1:-}" == "--remove" ]]; then
     print_banner
