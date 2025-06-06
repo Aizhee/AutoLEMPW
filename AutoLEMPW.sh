@@ -657,7 +657,7 @@ EOF
 # Hosts file update
 read -p "$(echo -e ${BOLD}"Would you like to add an entry to your /etc/hosts file for local testing? [Y/n]: "${NC})" UPDATE_HOSTS
 
-if [[ "$UPDATE_HOSTS" =~ ^[Yy]$ ]]; then
+if [[ -z "$UPDATE_HOSTS" || "$UPDATE_HOSTS" =~ ^[Yy]$ ]]; then
     info_msg "Adding $SITE_NAME to /etc/hosts..."
     if ! grep -q "$SITE_NAME" /etc/hosts; then
         echo "127.0.0.1 $SITE_NAME www.$SITE_NAME" | sudo tee -a /etc/hosts > /dev/null
@@ -717,9 +717,9 @@ success_msg "Installation summary created at $SUMMARY_FILE"
 
 # VS Code installation
 print_section "Additional Tools"
-read -p "$(echo -e ${BOLD}"Do you want to install VS Code and open the WordPress folder? (optional)[Y/n]: "${NC})" INSTALL_VSCODE
+read -p "$(echo -e ${BOLD}"Do you want to install VS Code and open the WordPress folder? (optional)[y/N]: "${NC})" INSTALL_VSCODE
 
-if [[ -z "$INSTALL_VSCODE" || "$INSTALL_VSCODE" =~ ^[Yy]$ ]]; then
+if [[ "$INSTALL_VSCODE" =~ ^[Yy]$ ]]; then
     # Install VS Code if not installed
     if ! command -v code &> /dev/null; then
         info_msg "Installing Visual Studio Code..."
