@@ -687,6 +687,7 @@ Web Root: $WEB_ROOT
 
 Database Information:
 -------------------
+Database Root Password: $MYSQL_ROOT_PASS
 Database Name: $DB_NAME
 Database User: $DB_USER
 Database Password: $DB_PASS
