@@ -534,13 +534,15 @@ info_msg "Setting up WordPress files..."
 } || exit_with_error "Failed to set up WordPress files"
 success_msg "WordPress files set up successfully"
 
+ESCAPED_DB_PASS=$(printf '%s\n' "$DB_PASS" | sed -e 's/[\/&]/\\&/g')
+
 # Create wp-config.php
 info_msg "Configuring wp-config.php..."
 {
     sudo cp "$WEB_ROOT/wp-config-sample.php" "$WEB_ROOT/wp-config.php"
     sudo sed -i "s/database_name_here/$DB_NAME/" "$WEB_ROOT/wp-config.php"
     sudo sed -i "s/username_here/$DB_USER/" "$WEB_ROOT/wp-config.php"
-    sudo sed -i "s/password_here/$DB_PASS/" "$WEB_ROOT/wp-config.php"
+    sudo sed -i "s/password_here/$ESCAPED_DB_PASS/" "$WEB_ROOT/wp-config.php"
     
     # Add additional security settings
     sudo sed -i "/table_prefix/a define('WP_DEBUG', false);" "$WEB_ROOT/wp-config.php"
